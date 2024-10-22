@@ -8,6 +8,6 @@ self.addEventListener("activate", function (event) {
 });
 
 self.addEventListener("fetch", function (event) {
-  console.log("[Service Worker] Activating Service Worker ...", event);
-  return self.clients.claim();
+  console.log("[Service Worker] fetching Service Worker ...", event);
+  // return self.clients.claim();
 });
