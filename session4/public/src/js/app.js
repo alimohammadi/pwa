@@ -1,5 +1,9 @@
 var deferredPrompt;
 
+if (!window.Promise) {
+  window.Promise = Promise;
+}
+
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/sw.js").then(function () {
     console.log("Service worker registered!");
@@ -20,6 +24,33 @@ var promise = new Promise(function (resolve, reject) {
     // console.log("");
   }, 3000);
 });
+
+fetch("https://httpbin.org/ip")
+  .then((response) => {
+    console.log(response);
+    return response.json();
+  })
+  .then((data) => {
+    console.log(data);
+  })
+  .catch((error) => console.log(error));
+
+fetch("https://httpbin.org/post", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  },
+  body: JSON.stringify({ message: "Does this work?" }),
+})
+  .then((response) => {
+    console.log(response);
+    return response.json();
+  })
+  .then((data) => {
+    console.log(data);
+  })
+  .catch((error) => console.log(error));
 
 promise
   .then(function (text) {
