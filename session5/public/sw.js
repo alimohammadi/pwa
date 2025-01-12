@@ -1,7 +1,7 @@
 self.addEventListener("install", function (event) {
   // console.log('[Service Worker] Installing Service Worker ...', event);
   event.waitUntil(
-    caches.open("static").then((cache) => {
+    caches.open("static-v2").then((cache) => {
       console.log("[Service Worker] Precashing service worker");
 
       cache.addAll([
