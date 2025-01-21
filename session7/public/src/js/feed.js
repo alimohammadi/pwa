@@ -7,6 +7,10 @@ var sharedMomentsArea = document.querySelector("#shared-moments");
 
 function openCreatePostModal() {
   createPostArea.style.display = "block";
+  setTimeout(() => {
+    createPostArea.style.transform = "translateY(0)";
+  }, 1);
+
   if (deferredPrompt) {
     deferredPrompt.prompt();
 
@@ -25,6 +29,7 @@ function openCreatePostModal() {
 }
 
 function closeCreatePostModal() {
+  createPostArea.style.transform = "translateY(100vh)";
   createPostArea.style.display = "none";
 }
 
@@ -55,7 +60,7 @@ function createCard(data) {
   cardTitle.className = "mdl-card__title";
   cardTitle.style.backgroundImage = "url(" + data.url + ")";
   cardTitle.style.backgroundSize = "cover";
-  cardTitle.style.height = "180px";
+  // cardTitle.style.height = "180px";
   cardWrapper.appendChild(cardTitle);
   var cardTitleTextElement = document.createElement("h2");
   cardTitleTextElement.className = "mdl-card__title-text";
