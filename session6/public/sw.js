@@ -1,4 +1,7 @@
-var CACHE_STATIC_NAME = "static-v3";
+importScripts("/src/js/idb.js");
+importScripts("/src/js/utility.js");
+
+var CACHE_STATIC_NAME = "static-v4";
 var CACHE_DYNAMIC_NAME = "dynamic-v3";
 var STATIC_FILES = [
   "/",
@@ -6,6 +9,7 @@ var STATIC_FILES = [
   "/src/js/app.js",
   "/offline.html",
   "/src/js/feed.js",
+  "/src/js/idb.js",
   "/src/js/promise.js",
   "/src/js/fetch.js",
   "/src/js/material.min.js",
@@ -71,19 +75,24 @@ function isInArray(string, array) {
 }
 
 self.addEventListener("fetch", function (event) {
-  var url = "https://httpbin.org/get";
+  var url = "https://pwagram-99adf.firebaseio.com/posts";
 
   if (event.request.url.indexOf(url) > -1) {
     // console.log('[Service Worker] Fetching something ....', event);
     event.respondWith(
-      caches.open(CACHE_DYNAMIC_NAME).then((cache) => {
-        return fetch(event.request).then((res) => {
-          // First trim the cache
-          // trimCache(CACHE_DYNAMIC_NAME, 3);
-          // Then save and put cache
-          cache.put(event.request, res.clone(res));
-          return res;
+      fetch(event.request).then((res) => {
+        var clonedRes = res.clone();
+        clearAllData("posts").then(() => {
+          return clonedRes.json().then((data) => {
+            for (var key in data) {
+              writeData("posts", data[key])
+              // .then(() =>
+              //   deleteItemFromData("posts", key)
+              // );
+            }
+          });
         });
+        return clonedRes;
       })
     );
   } else if (isInArray(event.request.url, STATIC_FILES)) {

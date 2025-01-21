@@ -48,23 +48,23 @@ function clearCards() {
   }
 }
 
-function createCard() {
+function createCard(data) {
   var cardWrapper = document.createElement("div");
   cardWrapper.className = "shared-moment-card mdl-card mdl-shadow--2dp";
   var cardTitle = document.createElement("div");
   cardTitle.className = "mdl-card__title";
-  cardTitle.style.backgroundImage = 'url("/src/images/sf-boat.jpg")';
+  cardTitle.style.backgroundImage = "url(" + data.url + ")";
   cardTitle.style.backgroundSize = "cover";
   cardTitle.style.height = "180px";
   cardWrapper.appendChild(cardTitle);
   var cardTitleTextElement = document.createElement("h2");
   cardTitleTextElement.className = "mdl-card__title-text";
-  cardTitleTextElement.textContent = "San Francisco Trip";
+  cardTitleTextElement.textContent = data.title;
   cardTitle.appendChild(cardTitleTextElement);
   var cardSupportingText = document.createElement("div");
 
   cardSupportingText.className = "mdl-card__supporting-text";
-  cardSupportingText.textContent = "In San Francisco";
+  cardSupportingText.textContent = data.location;
   cardSupportingText.style.textAlign = "center";
 
   var cardSaveButton = document.createElement("button");
@@ -77,7 +77,15 @@ function createCard() {
   sharedMomentsArea.appendChild(cardWrapper);
 }
 
-var url = "https://httpbin.org/get";
+function updateUi(data) {
+  clearCards();
+
+  for (let index = 0; index < data.length; index++) {
+    createCard(data[i]);
+  }
+}
+
+var url = "https://pwagram-99adf.firebaseio.com/posts";
 var networkDataReceived = false;
 
 fetch(url)
@@ -86,20 +94,22 @@ fetch(url)
   })
   .then(function (data) {
     networkDataReceived = true;
-    console.log("data", data);
+
     clearCards();
-    createCard();
+
+    var dataArray = [];
+    for (var key in data) {
+      dataArray.push(data[key]);
+    }
+    updateUi(dataArray);
+    // createCard();
   });
 
-if ("caches" in window) {
-  caches
-    .match(url)
-    .then((res) => {
-      if (res) return res.json();
-    })
-    .then((data) => {
-      console.log("data", data);
-
-      createCard();
-    });
+if ("indexedDB" in window) {
+  readAllData("posts").then((data) => {
+    if (!networkDataReceived) {
+      console.log("From Cache", data);
+      updateUi(data);
+    }
+  });
 }
