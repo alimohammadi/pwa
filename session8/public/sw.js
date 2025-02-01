@@ -74,9 +74,9 @@ function isInArray(string, array) {
   return false;
 }
 
-self.addEventListener("fetch", function (event) {
-  var url = "https://pwagram-99adf.firebaseio.com/posts";
+var url = "https://pwagram-99adf.firebaseio.com/posts";
 
+self.addEventListener("fetch", function (event) {
   if (event.request.url.indexOf(url) > -1) {
     // console.log('[Service Worker] Fetching something ....', event);
     event.respondWith(
@@ -85,7 +85,7 @@ self.addEventListener("fetch", function (event) {
         clearAllData("posts").then(() => {
           return clonedRes.json().then((data) => {
             for (var key in data) {
-              writeData("posts", data[key])
+              writeData("posts", data[key]);
               // .then(() =>
               //   deleteItemFromData("posts", key)
               // );
@@ -182,3 +182,41 @@ self.addEventListener("fetch", function (event) {
 // self.addEventListener("fetch", function (event) {
 //   event.respondWith(fetch(event.request));
 // });
+
+self.addEventListener("sync", (event) => {
+  console.log("[Service Worker] background syncing", event);
+  if (event.tag === "sync-new-post") {
+    console.log("[Service Worker] Syncing new posts");
+    event.waitUntil(
+      readAllData("sync-posts").then((data) => {
+        for (var dt of data) {
+          fetch(url + ".json", {
+            method: "post",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify({
+              // id: dt.id,
+              // title: dt.title,
+              // location: dt.location,
+              // image: dt.image,
+              ...dt,
+            }),
+          })
+            .then((res) => {
+              console.log("sent data: ", res);
+              if (res.ok) {
+                res.json().then((resData) => {
+                  deleteItemFromData("sync-posts", resData.id);
+                });
+              }
+            })
+            .catch((error) => {
+              console.log("Error while sending data", error);
+            });
+        }
+      })
+    );
+  }
+});
