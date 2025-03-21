@@ -220,3 +220,20 @@ self.addEventListener("sync", (event) => {
     );
   }
 });
+
+self.addEventListener("notificationclick", (event) => {
+  var notification = event.notification;
+  var action = event.action;
+
+  if (action === "confirm") {
+    console.log("Confirm was chosen");
+  } else {
+    console.log(action);
+  }
+  notification.close();
+});
+
+self.addEventListener("notificationclose", (event) => {
+  // You can handle send to backend and then log it and use for analysis
+  console.log("Notification was closed", event);
+});
