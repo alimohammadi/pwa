@@ -48,16 +48,39 @@ function configurePushSub() {
   navigator.serviceWorker.ready.then((swreg) => {
     reg = swreg;
 
-    swreg.pushManager.getSubscription().then((sub) => {
-      if (sub === null) {
-        // Create a new subscription
-        reg.pushManager.subscribe({
-          userVisibleOnly: true,
+    swreg.pushManager
+      .getSubscription()
+      .then((sub) => {
+        if (sub === null) {
+          // Create a new subscription
+          var vapidPublicKey = "";
+          var convertedVapidPublicKey = urlBase64ToUint8Array(vapidPublicKey);
+
+          reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: convertedVapidPublicKey,
+          });
+        } else {
+          // We have a subscription
+        }
+      })
+      .then((newSub) => {
+        // Store subscription
+        return fetch("backend_url.json", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify(newSub),
         });
-      } else {
-        // We have a subscription
-      }
-    });
+      })
+      .then((res) => {
+        if (res.ok) displayConfirmNotification();
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   });
 }
 
